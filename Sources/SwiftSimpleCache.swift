@@ -255,6 +255,29 @@ extension SwiftSimpleCache {
             })
         }
     }
+  
+  open func getCacheFiles() ->  [URL] {
+      
+      let diskCacheURL = URL(fileURLWithPath: cachePath)
+      let resourceKeys: Set<URLResourceKey> = [.isDirectoryKey, .contentAccessDateKey, .totalFileAllocatedSizeKey]
+  
+      var cachedFiles = [URL]()
+  
+      for fileUrl in (try? fileManager.contentsOfDirectory(at: diskCacheURL, includingPropertiesForKeys: Array(resourceKeys), options: .skipsHiddenFiles)) ?? [] {
+          
+          do {
+              let resourceValues = try fileUrl.resourceValues(forKeys: resourceKeys)
+              if resourceValues.isDirectory == true {
+                  continue
+              }
+              cachedFiles.append(fileUrl)
+          } catch {
+              print("DataCache: Error while iterating files \(error.localizedDescription)")
+          }
+      }
+      
+      return cachedFiles
+  }
 }
  
 extension SwiftSimpleCache {
